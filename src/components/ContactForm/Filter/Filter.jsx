@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import { Title, Input, Container } from './Filter.module';
 import { AiOutlineSearch } from 'react-icons/ai';
@@ -15,3 +16,7 @@ const Filter = ({ filter }) => {
 };
 
 export { Filter };
+
+Filter.propTypes = {
+  filter: PropTypes.func.isRequired,
+};

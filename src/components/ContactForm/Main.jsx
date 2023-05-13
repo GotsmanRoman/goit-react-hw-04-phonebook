@@ -5,37 +5,29 @@ import { MdOutlineContactPhone } from 'react-icons/md';
 import { FcContacts } from 'react-icons/fc';
 
 import { Container, PageTitle, SectionTitle } from './Main.module.jsx';
-import { ContactList } from './ContactList/ContactList';
-import { ContactForm } from './ContactForm/ContactForm';
-import { Filter } from './Filter/Filter';
+import { ContactList } from './ContactList/ContactList.jsx';
+import { ContactForm } from './ContactForm/ContactForm.jsx';
+import { Filter } from './Filter/Filter.jsx';
 
 function Phonebook() {
-  const DEFAULT_NAMES = () => {
-    if (localStorage.getItem('name-list')) {
-      return JSON.parse(localStorage.getItem('name-list'));
-    }
-    return [];
-  };
-  const DEFAULT_NUMBERS = () => {
-    if (localStorage.getItem('number-list')) {
-      return JSON.parse(localStorage.getItem('number-list'));
+  const LOCAL_STORAGE_DATA = () => {
+    if (localStorage.getItem('contact-list')) {
+      return JSON.parse(localStorage.getItem('contact-list'));
     }
     return [];
   };
 
-  const [name, setName] = useState(DEFAULT_NAMES);
-  const [number, setNumber] = useState(DEFAULT_NUMBERS);
+  const [contacts, setContacts] = useState(LOCAL_STORAGE_DATA);
   const [filter, setFilter] = useState('');
 
   useEffect(() => {
-    localStorage.setItem('name-list', JSON.stringify(name));
-    localStorage.setItem('number-list', JSON.stringify(number));
-  }, [name]);
+    localStorage.setItem('contact-list', JSON.stringify(contacts));
+  }, [contacts]);
 
   const checkDuplicateName = value => {
     let isUnique = true;
-    name.map(item => {
-      if (item.toLowerCase() === value.toLowerCase()) {
+    contacts.map(item => {
+      if (item.name.toLowerCase() === value.toLowerCase()) {
         isUnique = false;
       }
       return isUnique;
@@ -46,8 +38,7 @@ function Phonebook() {
     setFilter(event.target.value);
   };
   const handleDelete = itemId => {
-    setNumber(number.filter((item, index) => index !== itemId));
-    setName(name.filter((item, index) => index !== itemId));
+    setContacts(contacts.filter(item => item.id !== itemId));
   };
   const handleSubmit = event => {
     event.preventDefault();
@@ -55,11 +46,11 @@ function Phonebook() {
     const inputName = form.elements.name.value;
     const inputNumber = form.elements.number.value;
     if (checkDuplicateName(inputName) === true) {
-      setName(prevState => {
-        return [...prevState, inputName];
-      });
-      setNumber(prevState => {
-        return [...prevState, inputNumber];
+      setContacts(prevState => {
+        return [
+          ...prevState,
+          { name: inputName, number: inputNumber, id: nanoid() },
+        ];
       });
       form.reset();
     } else {
@@ -74,15 +65,14 @@ function Phonebook() {
       </PageTitle>
       <ContactForm onSubmit={handleSubmit}></ContactForm>
 
-      {name.length !== 0 ? (
+      {contacts.length !== 0 ? (
         <>
           <SectionTitle>
             Contacts <FcContacts></FcContacts>
           </SectionTitle>
           <Filter filter={handleFilter}></Filter>
           <ContactList
-            listName={name}
-            listNumber={number}
+            listArray={contacts}
             filter={filter}
             onDelete={handleDelete}
           ></ContactList>
